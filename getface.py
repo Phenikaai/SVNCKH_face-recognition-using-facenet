@@ -1,4 +1,3 @@
-from numpy import save
 import glob
 from streamlit_webrtc import webrtc_streamer
 from torchvision import transforms
