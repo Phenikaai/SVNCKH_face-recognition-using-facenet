@@ -63,4 +63,4 @@ for usr in os.listdir(IMG_PATH):
         torch.save(embedding, DATA_PATH+'/embeded_data./'+usr)
     
 pp_numbers=os.listdir(DATA_PATH+'/embeded_data')
-st.write('Update complete!, There are %d people(s) in data'%len(pp_numbers))
+st.write('There are %d people(s) in data'%len(pp_numbers))
