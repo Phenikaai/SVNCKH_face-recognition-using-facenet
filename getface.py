@@ -10,11 +10,12 @@ import av
 
 device =  'cpu'
 
-IMG_PATH = './project/data/test_images/'
+IMG_PATH = './data/test_images'
+if not os.path.exists(IMG_PATH):
+    os.mkdir(IMG_PATH)
 count = 1
 usr_name = st.text_input("Input your name: ")
 USR_PATH = os.path.join(IMG_PATH, usr_name)
-
 mtcnn = MTCNN(margin = 20, keep_all=False, post_process=False, device = device)
 class VideoProcessor:
     def recv(self, frame):

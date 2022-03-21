@@ -7,8 +7,8 @@ import os
 from PIL import Image
 import numpy as np
 
-IMG_PATH = './project/data/test_images'
-DATA_PATH = './project/data'
+IMG_PATH = './data/test_images'
+DATA_PATH = './data'
 
 device =  'cpu'
 def trans(img):

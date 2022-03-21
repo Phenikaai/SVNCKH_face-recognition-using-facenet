@@ -20,7 +20,7 @@ model.eval()
 mtcnn = MTCNN(thresholds= [0.7, 0.7, 0.8] ,keep_all=True, device = device)
 
 frame_size = (640,480)
-DATA_PATH = './project/data'
+DATA_PATH = './data'
 namelist=[]
 def trans(img):
     transform = transforms.Compose([
@@ -72,7 +72,7 @@ def extract_face(box, img, margin=20):
 
 def addToList(score,name):
     if score < 0.2:
-        with open('project/attendance.txt', 'a') as f:
+        with open('./attendance.txt', 'a') as f:
             if name not in namelist:
                 f.write(name+' '+str(datetime.now())+"\n")
                 namelist.append(name)
