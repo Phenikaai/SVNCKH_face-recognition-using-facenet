@@ -18,6 +18,7 @@ IMG_PATH = './data/test_images/'
 DATA_PATH = './data'
 if not os.path.exists(DATA_PATH):
     os.mkdir(DATA_PATH)
+if not os.path.exists(IMG_PATH):
     os.mkdir(IMG_PATH)
 
 def trans(img):
@@ -102,34 +103,29 @@ if page=='Get Data':
             cv2.putText(frm,usr_name,(50,50),cv2.FONT_HERSHEY_DUPLEX, 2, (0,255,0), 2, cv2.LINE_8)
             return av.VideoFrame.from_ndarray(frm, format='bgr24')
     webrtc_streamer(key="key", video_processor_factory=VideoProcessor)      
-    model = InceptionResnetV1(
-        classify=False,
-        pretrained="casia-webface"
-    ).to(device)
-
-    model.eval()
     if not os.path.exists(DATA_PATH+'/embeded_data'):
         os.mkdir(DATA_PATH+'/embeded_data')
-
-    for usr in os.listdir(IMG_PATH):
-        if usr not in os.listdir(DATA_PATH+'/embeded_data'):
-            #print(usr)
-            embeds = []
-            for file in glob.glob(os.path.join(IMG_PATH, usr)+'/*.jpg'):
-                try:
-                    img = Image.open(file)
-                except:
+    if st.button('Embed Face'):
+        for usr in os.listdir(IMG_PATH):
+            if usr not in os.listdir(DATA_PATH+'/embeded_data'):
+                #print(usr)
+                embeds = []
+                for file in glob.glob(os.path.join(IMG_PATH, usr)+'/*.jpg'):
+                    try:
+                        img = Image.open(file)
+                    except:
+                        continue
+                    with torch.no_grad():
+                        embeds.append(model(trans(img).to(device).unsqueeze(0)))
+                if len(embeds) == 0:
                     continue
-                with torch.no_grad():
-                    embeds.append(model(trans(img).to(device).unsqueeze(0)))
-            if len(embeds) == 0:
-                continue
-            embedding = torch.cat(embeds).mean(axis=0, keepdim=True)
-            torch.save(embedding, DATA_PATH+'/embeded_data./'+usr)
-        
+                embedding = torch.cat(embeds).mean(axis=0, keepdim=True)
+                torch.save(embedding, DATA_PATH+'/embeded_data./'+usr)
+        st.write("Success!!")
+    else:
+        st.write("Nothing yet")
     pp_numbers=os.listdir(DATA_PATH+'/embeded_data')
     st.write('There are %d people(s) in data'%len(pp_numbers))
-
 
 elif page=='Face Recognition':
     mtcnn = MTCNN(thresholds= [0.7, 0.7, 0.8] ,keep_all=True, device = device)
