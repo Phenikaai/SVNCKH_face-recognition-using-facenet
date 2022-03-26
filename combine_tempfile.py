@@ -120,6 +120,8 @@ if page=='Get Data':
                 if len(embeds) == 0:
                     continue
                 embedding = torch.cat(embeds).mean(axis=0, keepdim=True)
+                for file in glob.glob(os.path.join(IMG_PATH, usr)+'/*.jpg'):
+                    os.remove(file)
                 torch.save(embedding, DATA_PATH+'/embeded_data./'+usr)
         st.write("Success!!")
     else:
