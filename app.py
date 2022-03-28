@@ -39,7 +39,7 @@ def load_faceslist():
     return embeds, names
 embeddings, names = load_faceslist()
 
-def inference(model, face, local_embeds, threshold = 3):
+def inference(model, face, local_embeds, threshold = 2):
     embeds = []
     embeds.append(model(trans(face).to(device).unsqueeze(0)))
     detect_embeds = torch.cat(embeds)

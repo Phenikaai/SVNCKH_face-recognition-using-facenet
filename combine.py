@@ -102,12 +102,7 @@ if page=='Get Data':
             cv2.putText(frm,usr_name,(50,50),cv2.FONT_HERSHEY_DUPLEX, 2, (0,255,0), 2, cv2.LINE_8)
             return av.VideoFrame.from_ndarray(frm, format='bgr24')
     webrtc_streamer(key="key", video_processor_factory=VideoProcessor)      
-    model = InceptionResnetV1(
-        classify=False,
-        pretrained="casia-webface"
-    ).to(device)
-
-    model.eval()
+    
     if not os.path.exists(DATA_PATH+'/embeded_data'):
         os.mkdir(DATA_PATH+'/embeded_data')
 
