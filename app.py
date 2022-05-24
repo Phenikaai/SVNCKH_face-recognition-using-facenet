@@ -22,11 +22,21 @@ if not os.path.exists(IMG_PATH):
     os.mkdir(IMG_PATH)
 
 def trans(img):
-        transform = transforms.Compose([
-                transforms.ToTensor(),
-                fixed_image_standardization
-            ])
-        return transform(img)
+    transform = transforms.Compose([
+            transforms.ToTensor(),
+            fixed_image_standardization
+        ])
+    return transform(img)
+
+
+
+model = InceptionResnetV1(
+	classify=False,
+	pretrained="casia-webface"
+).to(device)
+model.eval()
+
+
 
 def load_faceslist():
     embeds=[]
@@ -38,6 +48,8 @@ def load_faceslist():
     embeds=torch.cat(embeds)
     return embeds, names
 embeddings, names = load_faceslist()
+
+
 
 def inference(model, face, local_embeds, threshold = 2):
     embeds = []
@@ -70,21 +82,13 @@ def extract_face(box, img, margin=20):
     face = Image.fromarray(face)
     return face
 
-def addToList(score,name):
-    if score < 0.2:
-        with open('./attendance.txt', 'a') as f:
-            if name not in namelist:
-                f.write(name+' '+str(datetime.now())+"\n")
-                namelist.append(name)
-                f.close()
+def addToList(name):
+    with open('./attendance.txt', 'a') as f:
+        if name not in namelist:
+            f.write(name+' '+"\n")
+            namelist.append(name)
+            f.close()
 embeddings, names = load_faceslist()
-
-model = InceptionResnetV1(
-	classify=False,
-	pretrained="casia-webface"
-).to(device)
-model.eval()
-
 
 page = st.selectbox(
     'Project',
@@ -95,14 +99,14 @@ if page=='Get Data':
     usr_name = st.text_input("Input your name: ")
     USR_PATH = os.path.join(IMG_PATH, usr_name)
     mtcnn = MTCNN(margin = 20, keep_all=False, post_process=False, device = device)
-    class VideoProcessor:
+    class GetFace:
         def recv(self, frame):
             frm = frame.to_ndarray(format="bgr24")
             path = str(USR_PATH+'/{}.jpg'.format(str(datetime.now())[:-7].replace(":","-").replace(" ","-")))
             face = mtcnn(frm,save_path=path)
             cv2.putText(frm,usr_name,(50,50),cv2.FONT_HERSHEY_DUPLEX, 2, (0,255,0), 2, cv2.LINE_8)
             return av.VideoFrame.from_ndarray(frm, format='bgr24')
-    webrtc_streamer(key="key", video_processor_factory=VideoProcessor)      
+    webrtc_streamer(key="key", video_processor_factory=GetFace)      
     if not os.path.exists(DATA_PATH+'/embeded_data'):
         os.mkdir(DATA_PATH+'/embeded_data')
     if st.button('Embed Face'):
@@ -122,6 +126,7 @@ if page=='Get Data':
                 embedding = torch.cat(embeds).mean(axis=0, keepdim=True)
                 for file in glob.glob(os.path.join(IMG_PATH, usr)+'/*.jpg'):
                     os.remove(file)
+                os.rmdir(os.path.join(IMG_PATH, usr))
                 torch.save(embedding, DATA_PATH+'/embeded_data./'+usr)
         st.write("Success!!")
     else:
@@ -131,7 +136,7 @@ if page=='Get Data':
 
 elif page=='Face Recognition':
     mtcnn = MTCNN(thresholds= [0.7, 0.7, 0.8] ,keep_all=True, device = device)
-    class VideoProcessor:
+    class FaceRecog:
         def recv(self, frame):
             frm = frame.to_ndarray(format="bgr24")
             boxes, _ = mtcnn.detect(frm)
@@ -144,13 +149,13 @@ elif page=='Face Recognition':
                         frm = cv2.rectangle(frm, (bbox[0],bbox[1]), (bbox[2],bbox[3]), (0,0,255), 6)
                         score = torch.Tensor.cpu(score[0]).detach().numpy()*power
                         frm = cv2.putText(frm, names[idx] + '_{:.2f}'.format(score), (bbox[0],bbox[1]), cv2.FONT_HERSHEY_DUPLEX, 2, (0,255,0), 2, cv2.LINE_8)
-                        addToList(score,names[idx])
+                        if score<0.2:
+                            addToList(names[idx])
                     else:
                         frm = cv2.rectangle(frm, (bbox[0],bbox[1]), (bbox[2],bbox[3]), (0,0,255), 6)
                         frm = cv2.putText(frm,"unknow", (bbox[0],bbox[1]), cv2.FONT_HERSHEY_DUPLEX, 2, (0,255,0), 2, cv2.LINE_8)
 
             return av.VideoFrame.from_ndarray(frm, format='bgr24')
 
-    webrtc_streamer(key="key", video_processor_factory=VideoProcessor)
-
+    webrtc_streamer(key="key", video_processor_factory=FaceRecog)
 
