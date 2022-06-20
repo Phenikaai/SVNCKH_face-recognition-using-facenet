@@ -6,12 +6,15 @@ pip install -r .\requirements.txt
 ``
 ## Get Face data
 MTCNN sẽ xác định vị trí các khuôn mặt trong ảnh và đưa ra 1 box chưa các tọa độ mặt
+
 ``python
 mtcnn = MTCNN(margin = 20, keep_all=False, post_process=False, device = device)
 ``
+
 MTCNN sẽ trả về ảnh 160 * 160 pixel, thông thường sẽ là ảnh sát mặt nhưng khi thêm margin vào thì vùng ảnh đấy sẽ được mở rộng ra theo số pixel đã chọn (20)
 Ta thêm margin vào để có thể dự đoán ảnh mặt tốt hơn thứ sẽ nói ở phần sau.
 Khi lấy được ảnh mặt thì ta sẽ embed nó sử dụng model của facenet
+
 ``python
 model = InceptionResnetV1(
 	classify=False,
@@ -19,6 +22,7 @@ model = InceptionResnetV1(
 ).to(device)
 model.eval()
 ``
+
 Tập model này đã được pretrain qua tập data "casia-webface", tuy nhiên những khuôn mặt trong tập data này hầu hết của của người châu âu nên đối với mặt người châu Á như chúng ta sẽ có chút sai số.
 Ảnh qua facenet sẽ trả về 1 embed vector (có thể gọi là vector đặc trưng), trong bài này vector sẽ có 512 chiều.
 ![image](https://user-images.githubusercontent.com/78363603/174589201-91ee684a-9332-4210-b84e-25f008348d5d.png)
@@ -43,3 +47,8 @@ Khoảng cách đến điểm vuông xanh nhỏ hơn=> nó thuộc class vuông 
 
 ![image](https://user-images.githubusercontent.com/78363603/174601554-75d84b96-48f0-48c7-9643-7c6fc12c61ce.png)
 
+Chạy code
+
+``bash
+streamlit run app.py
+``
