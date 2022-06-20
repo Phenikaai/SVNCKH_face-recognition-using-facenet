@@ -1,7 +1,7 @@
 # SVNCKH điểm danh nhận diện khuôn mặt (Chưa hoàn thiện)
 ## Installation Requirement
 
-``bash
+``
 pip install -r .\requirements.txt
 ``
 ## Get Face data
@@ -49,6 +49,6 @@ Khoảng cách đến điểm vuông xanh nhỏ hơn=> nó thuộc class vuông 
 
 Chạy code
 
-``bash
+``
 streamlit run app.py
 ``
